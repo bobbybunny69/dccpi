@@ -111,65 +111,37 @@ Note that `dccpi` programs must be run as root, or `wiringPi` will complain.
 
 
 ```
+###  [RS] My own blob for testing
 from dccpi import *
 e = DCCRPiEncoder()
 controller = DCCController(e)  # Create the DCC controller with the RPi encoder
-l1 = DCCLocomotive("DCC6", 6)  # Create locos, args: Name, DCC Address (see DCCLocomotive class)
+l1 = DCCLocomotive("DCC3", 3)  # Create loco, must have args: Name, DCC Address
+controller.register(l1)        # Register locos on the controller
+
+# NOTE: Read somewhere that most decoders default to 3
+
+l1                             # Print loco information
+controller                     # Print info from all locos registered
+
+controller.start()             # Start the controller. Removes brake signal
+
+l1.reverse()                   # Change direction bit
+l1.speed = 10                  # Change speed
+l1.fl = True                   # Change fl function bit
+
+controller.start()             # Start the controller. Removes brake signal
+
+### Can register other locos and control, eg:
 l2 = DCCLocomotive("DCC7", 7)
 l3 = DCCLocomotive("DCC8", 8)
-controller.register(l1)        # Register locos on the controller
-> DCC6 registered on address #6
 controller.register(l2)
-> DCC7 registered on address #7
 controller.register(l3)
-> DCC8 registered on address #8
-controller.start()             # Start the controller. Removes brake signal
-> Starting DCC Controller      # and starts sending bits to the booster
-l1.reverse()                   # Change direction bit
-l2.fl = True                   # Change fl function bit
+
 l3.fl = True
-l1.speed = 10                  # Change speed
 l2.speed = 18
 l3.speed = 23
 l3.slower()                    # Reduce 1 speed step
 l3.faster()                    # Increase 1 speed step
-l1                             # Print loco information
-
-DCC locomotive
-> Name:               my
-> Address:            6
-> Speed:              10
-> Speed steps:        28
-> Direction:          0
-> FL, F1, F2, F3, F4: [0 0 0 0 0]
-
-controller                     # Print info from all locos registered
-> DCC Controller:
-> -----------------------------
-> DCC locomotive
-> Name:               my8
-> Address:            8
-> Speed:              23
-> Speed steps:        28
-> Direction:          1
-> FL, F1, F2, F3, F4: [1 0 0 0 0]
-> -----------------------------
-> DCC locomotive
-> Name:               my2
-> Address:            7
-> Speed:              18
-> Speed steps:        28
-> Direction:          1
-> FL, F1, F2, F3, F4: [1 0 0 0 0]
-> -----------------------------
-> DCC locomotive
-> Name:               my
-> Address:            6
-> Speed:              10
-> Speed steps:        28
-> Direction:          0
-> FL, F1, F2, F3, F4: [0 0 0 0 0]
-> -----------------------------
  
 controller.stop()              # IMPORTANT! Stop controller always. Emergency-stops
 > DCC Controller stopped       # all locos and enables brake signal on tracks
